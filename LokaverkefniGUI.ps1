@@ -1,4 +1,4 @@
-﻿#Viktor Ingi Kárason
+#Viktor Ingi Kárason
 #Win3b
 #5.3.2017
 
@@ -53,7 +53,7 @@ $htable.Add("æ","a")
     }#end foreach statement
     $Notendanafn
 
-    New-ADUser -Name $nafn -DisplayName $nafn -GivenName $firstname -Surname $lastName -Department $deild -SamAccountName $Notendanafn -EmailAddress $($Notendanafn+"@tskoli.is") -UserPrincipalName $($Notendanafn+"@tskoli.local") -Path $("OU="+$deild+",OU=BBP,DC=bbp-ViktorH1,DC=local") -AccountPassword(ConvertTo-SecureString -AsPlainText "pass.123" -Force) -Enabled $true
+    New-ADUser -Name $nafn -DisplayName $nafn -GivenName $firstname -Surname $lastName -Department $deild -SamAccountName $Notendanafn -EmailAddress $($Notendanafn+"@tskoli.is") -UserPrincipalName $($Notendanafn+"@tskoli.win3b") -Path $("OU="+$deild+",OU=WIN3B_Tskoli,DC=tskoli,DC=win3b") -AccountPassword(ConvertTo-SecureString -AsPlainText "pass.123" -Force) -Enabled $true
     Add-ADGroupMember -Identity $deild -Members $newUsername
 
 }
@@ -97,7 +97,7 @@ $DropBox.Location = New-Object System.Drawing.Point(80,90)
 #set stærðina
 $DropBox.Size = New-Object System.Drawing.Size(200,90)
 #set values í combo boxið
-$OU = Get-ADOrganizationalUnit -Filter * -SearchBase "OU=BBP,DC=bbp-ViktorH1,DC=local" | select -ExpandProperty name
+$OU = Get-ADOrganizationalUnit -Filter * -SearchBase "OU=WIN3B_Tskoli,DC=tskoli,DC=win3b" | select -ExpandProperty name
 foreach($deild in $OU){
     $DropBox.Items.Add($deild)
 }
