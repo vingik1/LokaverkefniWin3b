@@ -59,6 +59,16 @@ $htable.Add("æ","a")
 
 }
 
+$Location = 'ou=WIN3B_Tskoli,dc=tskoli,dc=win3b'
+$Skolar = @()
+$Skolar += (Get-ADOrganizationalUnit -SearchBase $Location -SearchScope OneLevel -Filter *).Name
+if ($DropBox.SelectedItem -ne $null) {
+    $Deildir = @()
+    $Loc = "OU="+$DropBox.SelectedItem.ToString() + ",OU=WIN3B_Tskoli,dc=tskoli,dc=win3b"
+    $Deildir += (Get-ADOrganizationalUnit -SearchBase $Loc -SearchScope OneLevel -Filter *).Name
+}
+
+
 #Aðalglugginn 
 #Bý til tilvik af Form úr Windows Forms
 $frmLeita = New-Object System.Windows.Forms.Form
@@ -98,9 +108,8 @@ $DropBox.Location = New-Object System.Drawing.Point(80,90)
 #set stærðina
 $DropBox.Size = New-Object System.Drawing.Size(200,90)
 #set values í combo boxið
-$OU = Get-ADOrganizationalUnit -Filter * -SearchBase "OU=WIN3B_Tskoli,DC=tskoli,DC=win3b" | select -ExpandProperty name
-foreach($deild in $OU){
-    $DropBox.Items.Add($deild)
+foreach($item in $Skolar) {
+    $DropBox.Items.Add($item)
 }
 #set Dropboxið á form
 $frmLeita.Controls.Add($DropBox)
@@ -115,10 +124,13 @@ $frmLeita.Controls.Add($lblDeild)
 $DeildDrop = New-Object System.Windows.Forms.ComboBox
 $DeildDrop.Location = New-Object System.Drawing.Point(80, 150)
 $DeildDrop.Size = New-Object System.Drawing.Size(200, 90)
-$OUDeild = Get-ADOrganizationalUnit -Filter * -SearchBase $($DropBox.Text + "OU=WIN3B_Tskoli,DC=tskoli,DC=win3b") | select -ExpandProperty name
-foreach($deild in $OUDeild) {
-    $DeildDrop.Items.Add($deild)
+
+if ($DropBox.SelectedItem -ne $null) {
+    foreach($item in $Deildir) {
+        $DeildDrop.Items.Add($item)
+    }
 }
+
 $frmLeita.Controls.Add($DeildDrop)
 
 #Label Nafn:
