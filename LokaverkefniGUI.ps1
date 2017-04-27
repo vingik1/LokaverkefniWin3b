@@ -27,6 +27,7 @@ $htable.Add("ú","u")
 $htable.Add("æ","a")
     $nafn = $txtNafn.Text
     $deild = $DropBox.Text
+    $ddeild = $DeildDrop.Text
 
     $firstname = $nafn.Split(" ")[0]
     $middlename = $nafn.Split(" ")[1]
@@ -53,7 +54,7 @@ $htable.Add("æ","a")
     }#end foreach statement
     $Notendanafn
 
-    New-ADUser -Name $nafn -DisplayName $nafn -GivenName $firstname -Surname $lastName -Department $deild -SamAccountName $Notendanafn -EmailAddress $($Notendanafn+"@tskoli.is") -UserPrincipalName $($Notendanafn+"@tskoli.win3b") -Path $("OU="+$deild+",OU=WIN3B_Tskoli,DC=tskoli,DC=win3b") -AccountPassword(ConvertTo-SecureString -AsPlainText "pass.123" -Force) -Enabled $true
+    New-ADUser -Name $nafn -DisplayName $nafn -GivenName $firstname -Surname $lastName -Department $deild -SamAccountName $Notendanafn -EmailAddress $($Notendanafn+"@tskoli.is") -UserPrincipalName $($Notendanafn+"@tskoli.win3b") -Path $("OU="+$ddeild+",OU="+$deild+",OU=WIN3B_Tskoli,DC=tskoli,DC=win3b") -AccountPassword(ConvertTo-SecureString -AsPlainText "pass.123" -Force) -Enabled $true
     Add-ADGroupMember -Identity $deild -Members $newUsername
 
 }
@@ -80,7 +81,7 @@ $btnBuaTilNot.add_Click({ BuaTilNotenda})
 #Sett takkann á formið
 $frmLeita.Controls.Add($btnBuaTilNot)
 
-#Label OUDropbox:
+#Label Skóli Dropbox:
 #Bý til tilvik af Label
 $lblOU = New-Object System.Windows.Forms.Label
 #Set staðsetningu á label-inn
@@ -88,7 +89,7 @@ $lblOU.Location = New-Object System.Drawing.Point(35,90)
 #Set stærðina
 $lblOU.Size = New-Object System.Drawing.Size(30,20)
 #Set texta á 
-$lblOU.Text = "OU:"
+$lblOU.Text = "Skóli:"
 #Set label-inn á formið
 $frmLeita.Controls.Add($lblOU)
 
@@ -104,13 +105,29 @@ foreach($deild in $OU){
 #set Dropboxið á form
 $frmLeita.Controls.Add($DropBox)
 
+#Label Deild Dropbox:
+$lblDeild = New-Object System.Windows.Forms.Label
+$lblDeild.Location = New-Object System.Drawing.Point(35, 150)
+$lblDeild.Size = New-Object System.Drawing.Size(30, 20)
+$lblDeild.Text = "Deild:"
+$frmLeita.Controls.Add($lblDeild)
+
+$DeildDrop = New-Object System.Windows.Forms.ComboBox
+$DeildDrop.Location = New-Object System.Drawing.Point(80, 150)
+$DeildDrop.Size = New-Object System.Drawing.Size(200, 90)
+$OUDeild = Get-ADOrganizationalUnit -Filter * -SearchBase $($DropBox.Text + "OU=WIN3B_Tskoli,DC=tskoli,DC=win3b") | select -ExpandProperty name
+foreach($deild in $OUDeild) {
+    $DeildDrop.Items.Add($deild)
+}
+$frmLeita.Controls.Add($DeildDrop)
+
 #Label Nafn:
 #Bý til tilvik af Label
 $lblNafn = New-Object System.Windows.Forms.Label
 #Set staðsetningu á label-inn
-$lblNafn.Location = New-Object System.Drawing.Point(30,30)
+$lblNafn.Location = New-Object System.Drawing.Point(35,30)
 #Set stærðina
-$lblNafn.Size = New-Object System.Drawing.Size(50,20)
+$lblNafn.Size = New-Object System.Drawing.Size(30,20)
 #Set texta á 
 $lblNafn.Text = "Nafn:"
 #Set label-inn á formið
