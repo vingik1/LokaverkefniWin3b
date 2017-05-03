@@ -26,4 +26,45 @@ foreach($n in $notendur){
         New-ADOrganizationalUnit -name $deild -Path $("OU="+$skoli+",OU=WIN3B_Tskoli,DC=tskoli,DC=local") -ProtectedFromAccidentalDeletion $false
         New-ADGroup -Name $deild -Path $("OU="+$deild+",OU="+$skoli+",OU=WIN3B_Tskoli,DC=tskoli,DC=local") -GroupScope Global
         }
+     #$htable.Clear()
+$htable = @{}
+$htable.Add("á","a")
+$htable.Add("é","e")
+$htable.Add("ó","o")
+$htable.Add("ý","y")
+$htable.Add("í","i")
+$htable.Add("ð","d")
+$htable.Add("þ","t")
+$htable.Add("ö","o")
+$htable.Add("ú","u")
+$htable.Add("æ","a")
+
+    $firstname = $nafn.Split(" ")[0]
+    $middlename = $nafn.Split(" ")[1]
+    $lastName = $nafn.Split(" ")[2]
+    $lasterName = $nafn.Split(" ")[3]
+    if(!$lastName){
+        $username = $firstname.Substring(0,2)+$middlename.Substring(0,1)
+    }#end if statement
+    elseif($lasterName){
+        $username = $firstname.Substring(0,2)+$lasterName.Substring(0,1)
+    }#end elseif statement
+    else{
+        $username = $firstname.Substring(0,2)+$lastName.Substring(0,1)
+    }#end else statement
+    $username = $username.ToLower()
+            $Notendanafn = ""
+    foreach($stafur in $username.ToCharArray()) {
+        if($htable.Contains($stafur.tostring())) {
+            $Notendanafn += $htable[$stafur.tostring()]
+        }#end if statement
+        else {
+            $Notendanafn += $stafur.tostring()
+        }#end else statement
+    }#end foreach statement
+
+        
+     if((Get-ADUser -Filter * -SearchBase $("OU="+$skoli+",OU=WIN3B_Tskoli,DC=tskoli,DC=local") -Filter {name -eq $Notandanafn}).Count -gt 0) {
+        New-ADUSer -SamAccountName $($Notandanafn + 1) 
+     }
 }
