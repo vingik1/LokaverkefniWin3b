@@ -1,4 +1,4 @@
-﻿cd D:\OneDrive\2017V\WIN3B3U\Lokaverkefni
+﻿cd D:\skoladot\
 $notendur = Import-Csv -Path "lokaverk_notendur_u.csv"
 
 #$htable.Clear()
@@ -14,6 +14,7 @@ $htable.Add("ö","o")
 $htable.Add("ú","u")
 $htable.Add("æ","a")
 
+$Allir = @()
 foreach($n in $notendur){
     $skoli = $n.'Skóli;Deild;Nafn'.Split(";")[0]
     $deild = $n.'Skóli;Deild;Nafn'.Split(";")[1]
@@ -42,7 +43,16 @@ foreach($n in $notendur){
             $Notendanafn += $stafur.tostring()
         }#end else statement
     }#end foreach statement
-    $Notendanafn
+    while ($Allir -contains $Notendanafn) {
+        $Notendanafn += 1
+        $tala = $Notendanafn.Substring(3, $Notendanafn.Length - 3)
+        $t = $tala.Length
+        $Notendanafn = $Notendanafn + $t
+    }
+    if ($Allir -contains $Notendanafn -eq $false) {
+        $Allir += $Notendanafn
+    }
+    $Allir
 }#end overall foreach statement
 
 
