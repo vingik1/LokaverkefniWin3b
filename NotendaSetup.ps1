@@ -63,8 +63,8 @@ $htable.Add("æ","a")
         }#end else statement
     }#end foreach statement
 
-        
-     if((Get-ADUser -Filter * -SearchBase $("OU="+$skoli+",OU=WIN3B_Tskoli,DC=tskoli,DC=local") -Filter {name -eq $Notandanafn}).Count -gt 0) {
-        New-ADUSer -SamAccountName $($Notandanafn + 1) 
+    $usercounter = (Get-ADUser -Filter * -SearchBase $("OU="+$skoli+",OU=WIN3B_Tskoli,DC=tskoli,DC=local") -Filter {name -eq $Notandanafn}).Count       
+     while ($usercounter -gt 0) {
+        $Notendanafn = $Notendanafn + 1.toString()
      }
 }
