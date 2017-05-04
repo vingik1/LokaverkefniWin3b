@@ -1,1 +1,10 @@
-6/4/'17 - Búinn að Installa AD + DC á server nr 8
+6/4/'17 - 
+Búinn að Installa AD + DC á server nr 8
+10 - 21/4/'17
+Páskafrí
+27/4/'17
+Vann í GUI
+3/5/'17
+Vann í að búa til notendanöfn
+4/5/'17
+Kláruðum að búa til notendur
