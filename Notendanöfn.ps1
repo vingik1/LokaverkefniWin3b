@@ -1,4 +1,4 @@
-﻿cd D:\skoladot\
+cd C:\Users\Administrator\Documents
 $notendur = Import-Csv -Path "lokaverk_notendur_u.csv"
 
 #$htable.Clear()
@@ -34,26 +34,34 @@ foreach($n in $notendur){
         $username = $firstname.Substring(0,2)+$lastName.Substring(0,1)
     }#end else statement
     $username = $username.ToLower()
-            $Notendanafn = ""
+
+
+    $Notendanafn = ""
+    $temp = ""
     foreach($stafur in $username.ToCharArray()) {
         if($htable.Contains($stafur.tostring())) {
             $Notendanafn += $htable[$stafur.tostring()]
+            $temp += $htable[$stafur.tostring()]
         }#end if statement
         else {
             $Notendanafn += $stafur.tostring()
+            $temp += $stafur.tostring()
         }#end else statement
     }#end foreach statement
+
+    $counter = 0
     while ($Allir -contains $Notendanafn) {
-        $Notendanafn += 1
-        $tala = $Notendanafn.Substring(3, $Notendanafn.Length - 3)
-        $t = $tala.Length
-        $Notendanafn = $Notendanafn + $t
+        $counter += 1
+        $Notendanafn = $temp + $counter
     }
-    if ($Allir -contains $Notendanafn -eq $false) {
-        $Allir += $Notendanafn
+    $Allir += $Notendanafn
+    $Notendanafn
+
+    if ($deild.Length -gt 0) {
+        New-ADUSer -Name $nafn -DisplayName $nafn -Department $deild -SamAccountName $Notendanafn -UserPrincipalName $($Notendanafn+"@tskoli.win3b") -Path $("OU="+$deild+",OU="+$skoli+",OU=WIN3B_Tskoli,DC=tskoli,DC=win3b") -AccountPassword(ConvertTo-SecureString -AsPlainText "zxyq.123" -Force) -Enabled $true
+    } else {
+        New-ADUSer -Name $nafn -DisplayName $nafn -Department $deild -SamAccountName $Notendanafn -UserPrincipalName $($Notendanafn+"@tskoli.win3b") -Path $("OU="+$skoli+",OU=WIN3B_Tskoli,DC=tskoli,DC=win3b") -AccountPassword(ConvertTo-SecureString -AsPlainText "zxyq.123" -Force) -Enabled $true
     }
-    $Allir
+    
+
 }#end overall foreach statement
-
-
-
