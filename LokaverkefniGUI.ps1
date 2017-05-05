@@ -49,12 +49,11 @@ $htable.Add("æ","a")
     }#end foreach statement
 
     $counter = 0
-    try {
-        $check = (Get-ADUser $Notendanafn)
-    } catch {}
-    while ($check) {
+    $check = Get-ADUser -Filter { SamAccountName -eq $Notendanafn }
+    while ($check -ne $null) {
         $counter += 1
         $Notendanafn = $temp + $counter
+        $check = Get-ADUser -Filter { SamAccountName -eq $Notendanafn }
     }
 
     if ($deild.Length -gt 0) {
