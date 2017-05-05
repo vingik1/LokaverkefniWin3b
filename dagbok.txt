@@ -8,3 +8,5 @@ Vann í GUI
 Vann í að búa til notendanöfn
 4/5/'17
 Kláruðum að búa til notendur
+5/5/'17
+Kláraði að búa til GUI og lét það virka
