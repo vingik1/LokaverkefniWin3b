@@ -1,20 +1,9 @@
-#Viktor Ingi Kárason
-#Win3b
-#5.3.2017
-
-
-#Hleð inn klösum fyrir GUI, svipað og References í C#
-[System.Reflection.Assembly]::LoadWithPartialName("System.Drawing") 
+[System.Reflection.Assembly]::LoadWithPartialName("System.Drawing")
 [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
 
-#Breytan notendur er hashtafla sem heldur utan um alla notendur sem finnast, 
-#breytan þarf að vera "global" innan skriptunnar
-$Script:notendur = @{} 
-#Fall sem sér um að búa til Vefsidu Notenda
-
-#Fall sem sér um að búa til notendur
-function BuaTilNotenda  {
-    $htable = @{}
+function CreateUser {
+#$htable.Clear()
+$htable = @{}
 $htable.Add("á","a")
 $htable.Add("é","e")
 $htable.Add("ó","o")
@@ -25,9 +14,10 @@ $htable.Add("þ","t")
 $htable.Add("ö","o")
 $htable.Add("ú","u")
 $htable.Add("æ","a")
-    $nafn = $txtNafn.Text
-    $deild = $DropBox.Text
-    $ddeild = $DeildDrop.Text
+
+    $skoli = $CboxSkoli.SelectedItem.ToString()
+    $deild = $CboxDeild.SelectedItem.ToString()
+    $nafn = $TxtName.Text
 
     $firstname = $nafn.Split(" ")[0]
     $middlename = $nafn.Split(" ")[1]
@@ -43,117 +33,120 @@ $htable.Add("æ","a")
         $username = $firstname.Substring(0,2)+$lastName.Substring(0,1)
     }#end else statement
     $username = $username.ToLower()
-            $Notendanafn = ""
+
+
+    $Notendanafn = ""
+    $temp = ""
     foreach($stafur in $username.ToCharArray()) {
         if($htable.Contains($stafur.tostring())) {
             $Notendanafn += $htable[$stafur.tostring()]
+            $temp += $htable[$stafur.tostring()]
         }#end if statement
         else {
             $Notendanafn += $stafur.tostring()
+            $temp += $stafur.tostring()
         }#end else statement
     }#end foreach statement
-    $Notendanafn
 
-    New-ADUser -Name $nafn -DisplayName $nafn -GivenName $firstname -Surname $lastName -Department $deild -SamAccountName $Notendanafn -EmailAddress $($Notendanafn+"@tskoli.is") -UserPrincipalName $($Notendanafn+"@tskoli.win3b") -Path $("OU="+$ddeild+",OU="+$deild+",OU=WIN3B_Tskoli,DC=tskoli,DC=win3b") -AccountPassword(ConvertTo-SecureString -AsPlainText "pass.123" -Force) -Enabled $true
-    Add-ADGroupMember -Identity $deild -Members $newUsername
-
-}
-
-$Location = 'ou=WIN3B_Tskoli,dc=tskoli,dc=win3b'
-$Skolar = @()
-$Skolar += (Get-ADOrganizationalUnit -SearchBase $Location -SearchScope OneLevel -Filter *).Name
-if ($DropBox.SelectedItem -ne $null) {
-    $Deildir = @()
-    $Loc = "OU="+$DropBox.SelectedItem.ToString() + ",OU=WIN3B_Tskoli,dc=tskoli,dc=win3b"
-    $Deildir += (Get-ADOrganizationalUnit -SearchBase $Loc -SearchScope OneLevel -Filter *).Name
-}
-
-
-#Aðalglugginn 
-#Bý til tilvik af Form úr Windows Forms
-$frmLeita = New-Object System.Windows.Forms.Form
-#Set stærðina á forminu
-$frmLeita.ClientSize = New-Object System.Drawing.Size(400,200)
-#Set titil á formið
-$frmLeita.Text = "Powershell GUI"
-
-#Leita takkinn
-#Bý til tilvik af Button
-$btnBuaTilNot = New-Object System.Windows.Forms.Button
-#Set staðsetningu á takkanum
-$btnBuaTilNot.Location = New-Object System.Drawing.Point(300,36)
-#Set stærðina á takkanum
-$btnBuaTilNot.Size = New-Object System.Drawing.Size(75,40)
-#Set texta á takkann
-$btnBuaTilNot.Text = "Búa til notenda"
-#Bý til event sem keyrir þegar smellt er á takkann. Þegar smellt er á takkan á að kalla í fallið LeitaAdNotendum
-$btnBuaTilNot.add_Click({ BuaTilNotenda})
-#Sett takkann á formið
-$frmLeita.Controls.Add($btnBuaTilNot)
-
-#Label Skóli Dropbox:
-#Bý til tilvik af Label
-$lblOU = New-Object System.Windows.Forms.Label
-#Set staðsetningu á label-inn
-$lblOU.Location = New-Object System.Drawing.Point(35,90)
-#Set stærðina
-$lblOU.Size = New-Object System.Drawing.Size(30,20)
-#Set texta á 
-$lblOU.Text = "Skóli:"
-#Set label-inn á formið
-$frmLeita.Controls.Add($lblOU)
-
-$DropBox = New-Object System.Windows.Forms.ComboBox
-$DropBox.Location = New-Object System.Drawing.Point(80,90)
-#set stærðina
-$DropBox.Size = New-Object System.Drawing.Size(200,90)
-#set values í combo boxið
-foreach($item in $Skolar) {
-    $DropBox.Items.Add($item)
-}
-#set Dropboxið á form
-$frmLeita.Controls.Add($DropBox)
-
-#Label Deild Dropbox:
-$lblDeild = New-Object System.Windows.Forms.Label
-$lblDeild.Location = New-Object System.Drawing.Point(35, 150)
-$lblDeild.Size = New-Object System.Drawing.Size(30, 20)
-$lblDeild.Text = "Deild:"
-$frmLeita.Controls.Add($lblDeild)
-
-$DeildDrop = New-Object System.Windows.Forms.ComboBox
-$DeildDrop.Location = New-Object System.Drawing.Point(80, 150)
-$DeildDrop.Size = New-Object System.Drawing.Size(200, 90)
-
-if ($DropBox.SelectedItem -ne $null) {
-    foreach($item in $Deildir) {
-        $DeildDrop.Items.Add($item)
+    $counter = 0
+    try {
+        $check = (Get-ADUser $Notendanafn)
+    } catch {}
+    while ($check) {
+        $counter += 1
+        $Notendanafn = $temp + $counter
     }
+
+    if ($deild.Length -gt 0) {
+        New-ADUSer -Name $nafn -DisplayName $nafn -Department $deild -SamAccountName $Notendanafn -UserPrincipalName $($Notendanafn+"@tskoli.win3b") -Path $("OU="+$deild+",OU="+$skoli+",OU=WIN3B_Tskoli,DC=tskoli,DC=win3b") -AccountPassword(ConvertTo-SecureString -AsPlainText "zxyq.123" -Force) -Enabled $true
+    } else {
+        New-ADUSer -Name $nafn -DisplayName $nafn -Department $deild -SamAccountName $Notendanafn -UserPrincipalName $($Notendanafn+"@tskoli.win3b") -Path $("OU="+$skoli+",OU=WIN3B_Tskoli,DC=tskoli,DC=win3b") -AccountPassword(ConvertTo-SecureString -AsPlainText "zxyq.123" -Force) -Enabled $true
+    }
+
+    $LblCreated.Text =  "User " + $nafn + " Created in " + $skoli + " - " + $deild
 }
 
-$frmLeita.Controls.Add($DeildDrop)
+# Næ í alla Skóla sem eru til
+$Skolar = @()
+$OU = 'ou=WIN3B_Tskoli,dc=tskoli,dc=win3b'
+$Skolar += (Get-ADOrganizationalUnit -SearchBase $OU -SearchScope OneLevel -Filter *).Name
 
-#Label Nafn:
-#Bý til tilvik af Label
-$lblNafn = New-Object System.Windows.Forms.Label
-#Set staðsetningu á label-inn
-$lblNafn.Location = New-Object System.Drawing.Point(35,30)
-#Set stærðina
-$lblNafn.Size = New-Object System.Drawing.Size(30,20)
-#Set texta á 
-$lblNafn.Text = "Nafn:"
-#Set label-inn á formið
-$frmLeita.Controls.Add($lblNafn)
+# Bý til formin
+$Window = New-Object System.Windows.Forms.Form
+$LblName = New-Object System.Windows.Forms.Label
+$LblSkoli = New-Object System.Windows.Forms.Label
+$LblDeild = New-Object System.Windows.Forms.Label
+$BtnCreate = New-Object System.Windows.Forms.Button
+$CboxSkoli = New-Object System.Windows.Forms.ComboBox
+$CboxDeild = New-Object System.Windows.Forms.ComboBox
+$TxtName = New-Object System.Windows.Forms.TextBox
 
-#Textabox fyrir Nafn
-#Bý til tilvik af TextBox
-$txtNafn = New-Object System.Windows.Forms.TextBox
-#Set staðsetninguna
-$txtNafn.Location = New-Object System.Drawing.Point(80,30)
-#Set stærðina
-$txtNafn.Size = New-Object System.Drawing.Size(210,30)
-#Set textboxið á formið
-$frmLeita.Controls.Add($txtNafn)
 
-#Birti formið
-$frmLeita.ShowDialog()
+# Aðal glugginn
+$Window.ClientSize = New-Object System.Drawing.Size(350, 350)
+$Window.Text = "Powershell GUI"
+
+# Nafn Label
+$LblName.Location = New-Object System.Drawing.Point(30,30)
+$LblName.Size = New-Object System.Drawing.Size(50,20)
+$LblName.Text = "Nafn:"
+
+# Skoli Label
+$LblSkoli.Location = New-Object System.Drawing.Point(30,100)
+$LblSkoli.Size = New-Object System.Drawing.Size(50,20)
+$LblSkoli.Text = "Skóli:"
+
+# Deild Label
+$LblDeild.Location = New-Object System.Drawing.Point(30, 170)
+$LblDeild.Size = New-Object System.Drawing.Size(50, 20)
+$LblDeild.Text = "Deild:"
+
+# Skrá Notanda Takki
+$BtnCreate.Location = New-Object System.Drawing.Point(110, 240)
+$BtnCreate.Size = New-Object System.Drawing.Size(130, 30)
+$BtnCreate.Text = "Skrá Notanda"
+$BtnCreate.add_click( { CreateUser } )
+
+# Skoli Checkbox
+$CboxSkoli.Location = New-Object System.Drawing.Point(80, 100)
+$CboxSkoli.Size = New-Object System.Drawing.Size(210, 30)
+
+# Deild Checkbox
+$CboxDeild.Location = New-Object System.Drawing.Point(80, 170)
+$CboxDeild.Size = New-Object System.Drawing.Size(210,30)
+
+# Nafn Textbox
+$TxtName.Location = New-Object System.Drawing.Point(80,30)
+$TxtName.Size = New-Object System.Drawing.Size(210,30)
+
+# Set Items í Comboboxin
+$CboxSkoli.Items.AddRange($Skolar)
+
+$CboxSkoli_SelectedIndexChanged = {
+$CboxDeild.Items.Clear()
+if ($CboxSkoli.SelectedIndex -gt -1) {
+    $Deildir = @()
+    $ThisOU = 'ou=' + $CboxSkoli.SelectedItem.ToString() + ',ou=WIN3B_Tskoli,dc=tskoli,dc=win3b'
+    $Deildir = (Get-ADOrganizationalUnit -SearchBase $ThisOU -SearchScope OneLevel -Filter *).Name
+}
+$CboxDeild.Items.AddRange($Deildir)
+
+$CboxDeild.SelectedIndex = 0
+}
+
+$CboxSkoli.add_SelectedIndexChanged($CboxSkoli_SelectedIndexChanged)
+
+$Window.Controls.Add($LblName)
+$Window.Controls.Add($LblSkoli)
+$Window.Controls.Add($LblDeild)
+$Window.Controls.Add($CboxSkoli)
+$Window.Controls.Add($CboxDeild)
+$Window.Controls.Add($TxtName)
+$Window.Controls.Add($BtnCreate)
+
+$LblCreated = New-Object System.Windows.Forms.Label
+$LblCreated.Location = New-Object System.Drawing.Point(10, 280)
+$LblCreated.Size = New-Object System.Drawing.Size(340, 130)
+$Window.Controls.Add($LblCreated)
+
+$Window.ShowDialog()
